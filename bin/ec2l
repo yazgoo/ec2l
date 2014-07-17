@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 require 'ec2l'
-Ec2l::Client.new.shell
+require 'awesome_print'
+ARGV[0] = "help" if ARGV.size == 0
+awesome_print Ec2l::Client.new.send *ARGV

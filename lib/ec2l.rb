@@ -1,74 +1,72 @@
 require "ec2l/version"
 require 'base64'
+require 'awesome_print'
+require 'pry'
 module Ec2l
     class Client
-        def to_hash array
-            result = {}
-            array.each { |i| result[i["key"].to_sym] = i["value"] }
-            result
-        end
         def instances keep = ["instanceId", "ipAddress", "groups",
                               "launchType", "instanceType", "tagSet"]
-            r = []
-            @ec2.describe_instances.reservationSet.item.each do |item|
+            @ec2.describe_instances.reservationSet.item.collect do |item|
                 group = item.groupSet if keep.include? "groups"
                 item = item.instancesSet.item[0].reject{|k, v| not keep.include? k}
                 item["groups"] = group.item.map{|x| x.groupId } if not group.nil?
                 item["tagSet"] = to_hash(item["tagSet"].item) if item["tagSet"]
-                r << Hash[item.map { |k, v| [k.to_sym, v] }]
+                Hash[item.map { |k, v| [k.to_sym, v] }]
             end
-            r
         end
         def instance(id) @ec2.describe_instances(instance_id: id) end
         def sgs
-            r = []
-            @ec2.describe_security_groups.securityGroupInfo.item.each do |item|
-                r << item.reject { |k, v| not ["groupName", "ownerId"].include? k }
+            @ec2.describe_security_groups.securityGroupInfo.item.collect do |item|
+                item.reject { |k, v| not ["groupName", "ownerId"].include? k }
             end
-            r
         end
         def i() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
         def log id
             puts Base64.decode64 @ec2.get_console_output(instance_id: id)["output"]
         end
         def terminate(id) @ec2.terminate_instances(instance_id: id) end
-        def shell
-            require 'pry'
-            Pry.config.pager = false
-            binding.pry
-        end
-        def update_configuration
+        def shell() binding.pry end
+        def update_configuration creds = nil
             puts "Will try and update configuration in #{@conf}"
-            creds = read_credentials
+            creds = read_credentials if creds.nil?
             File.open(@conf, "w") do |f|
                 ["access key", "secret access key",
-                 "entry point (default being https://aws.amazon.com if left blank)"
+                 "entry point (default being https://aws.amazon.com if blank)"
                 ].each_with_index do |prompt, i|
                     printf "#{prompt} (#{creds.size > i ? creds[i]:""}): "
-                    line = gets.chomp
+                    line = $stdin.gets.chomp
                     line = creds[i] if line.empty? and creds.size > i
                     f.puts line if not line.empty?
                 end
             end
         end
+private
         def read_credentials
-            credentials = []
-            return credentials if not File.exists? @conf
-            File.open(@conf) { |f| f.each { |line| credentials << line.chomp } }
-            credentials
+            creds = []
+            File.open(@conf) { |f| f.each_line { |l| creds << l.chomp } } if File.exists?(@conf)
+            creds
+        end
+        def to_hash array
+            Hash[array.collect { |i| [i["key"].to_sym, i["value"]] }]
         end
         def load_credentials
-            update_configuration if not File.exists? @conf
+            credentials = read_credentials
+            return credentials if credentials.size >= 2
+            update_configuration credentials
             read_credentials
         end
         def initialize
-            @conf = ENV['awssecret']
-            @conf ||= "#{ENV['HOME']}/.awssecret"
+            @conf = ENV['awssecret'] || "#{ENV['HOME']}/.awssecret"
             credentials = load_credentials
             ENV['EC2_URL'] = credentials[2] if credentials.size >= 3
             require 'AWS' # *must* load AWS after setting EC2_URL
             @ec2 = AWS::EC2::Base.new access_key_id: credentials[0],
                 secret_access_key: credentials[1]
+        end
+        def method_missing method, *args, &block
+            puts "Usage: action parameters...", "available actions:"
+            awesome_print (public_methods - "".public_methods)
+            nil
         end
     end
 end
