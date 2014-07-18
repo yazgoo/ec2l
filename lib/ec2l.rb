@@ -105,6 +105,9 @@ module Ec2l
         def terminate(id) @ec2.terminate_instances(instance_id: id) end
         # Public: opens up a pry shell
         def shell() binding.pry end
+        # Public: update the credentials configuration
+        #
+        # creds  -   current credentials
         def update_configuration creds = nil
             puts "Will try and update configuration in #{@conf}"
             creds = read_credentials if creds.nil?
@@ -150,13 +153,16 @@ private
             @ec2 = AWS::EC2::Base.new access_key_id: credentials[0],
                 secret_access_key: credentials[1]
         end
+        def method_missing_ec2 method, *args, &block
+            [method, "describe_#{method.to_s}".to_sym].each do |meth|
+                if @ec2.public_methods.include? meth
+                    return @ec2.send meth, *args, &block
+                end
+            end
+            yield
+        end
         def method_missing method, *args, &block
-            described = "describe_#{method.to_s}".to_sym
-            if @ec2.public_methods.include? method
-                @ec2.send method, *args, &block
-            elsif @ec2.public_methods.include? described
-                @ec2.send described, *args, &block
-            else
+            method_missing_ec2 method, *args, &block do
                 puts "Usage: action parameters...", "available actions:"
                 awesome_print (public_methods - "".public_methods)
                 nil
