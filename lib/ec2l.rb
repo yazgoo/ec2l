@@ -15,6 +15,9 @@ module Ec2l
             end
         end
         def instance(id) @ec2.describe_instances(instance_id: id) end
+        def associate address, id
+            @ec2.associate_address public_ip: address, instance_id: id
+        end
         def sgs
             @ec2.describe_security_groups.securityGroupInfo.item.collect do |item|
                 item.reject { |k, v| not ["groupName", "ownerId"].include? k }
@@ -64,9 +67,16 @@ private
                 secret_access_key: credentials[1]
         end
         def method_missing method, *args, &block
-            puts "Usage: action parameters...", "available actions:"
-            awesome_print (public_methods - "".public_methods)
-            nil
+            described = "describe_#{method.to_s}".to_sym
+            if @ec2.public_methods.include? method
+                @ec2.send method, *args, &block
+            elsif @ec2.public_methods.include? described
+                @ec2.send described, *args, &block
+            else
+                puts "Usage: action parameters...", "available actions:"
+                awesome_print (public_methods - "".public_methods)
+                nil
+            end
         end
     end
 end
