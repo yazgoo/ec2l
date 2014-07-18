@@ -40,12 +40,12 @@ module Ec2l
                 end
             end
         end
-private
         def read_credentials
             creds = []
             File.open(@conf) { |f| f.each_line { |l| creds << l.chomp } } if File.exists?(@conf)
             creds
         end
+private
         def to_hash array
             Hash[array.collect { |i| [i["key"].to_sym, i["value"]] }]
         end
