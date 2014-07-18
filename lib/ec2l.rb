@@ -93,6 +93,7 @@ module Ec2l
         #
         # Return information about the termination status
         def terminate(id) @ec2.terminate_instances(instance_id: id) end
+        # Public: opens up a pry shell
         def shell() binding.pry end
         def update_configuration creds = nil
             puts "Will try and update configuration in #{@conf}"
@@ -108,6 +109,14 @@ module Ec2l
                 end
             end
         end
+        # Public: reads credentials from configuration file
+        #
+        # Examples
+        #
+        #   read_credentials
+        #       => ["accesskey", "scretkey", "https://entry.com"]
+        #
+        # Return a list with the credentials and entrypoint if defined
         def read_credentials
             creds = []
             File.open(@conf) { |f| f.each_line { |l| creds << l.chomp } } if File.exists?(@conf)
