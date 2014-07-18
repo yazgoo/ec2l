@@ -80,8 +80,18 @@ module Ec2l
         #
         # Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
         def i() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
+        # Public: get system log
+        #
+        # id  -   the VM instance id
+        #
+        # Examples
+        #
+        #   log("i-deadbeef")[0..1]
+        #       => ["Initializing cgroup subsys cpuset", "Initializing cgroup subsys cpu"]
+        #
+        # Return an array containing the lines of the system log
         def log id
-            puts Base64.decode64 @ec2.get_console_output(instance_id: id)["output"]
+            Base64.decode64(@ec2.get_console_output(instance_id: id)["output"]).split("\r\n")
         end
         # Public: terminates a VM instance
         #
