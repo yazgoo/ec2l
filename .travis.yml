@@ -3,3 +3,6 @@ rvm:
   - 2.1.0
   - jruby-19mode
   - jruby-head
+addons:
+  code_climate:
+    repo_token: b8d2d2e6c25619ddc2efa605b020bf716623bc65c08bd7bc044d90c264def66d
