@@ -27,10 +27,43 @@ module Ec2l
                 Hash[item.map { |k, v| [k.to_sym, v] }]
             end
         end
+        # Public: displays inforation about a VM instance
+        #
+        # id  -   the VM instance id
+        #
+        # Examples
+        #
+        #   instance "i-deadbeef"
+        #       => {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31/",
+        #        "requestId"=>"89375055-16de-4ab7-84b5-5651670e7e3b",
+        #        "reservationSet"=>
+        #         {"item"=>
+        #          ...
+        #
+        # Returns a hash with description of the instance
         def instance(id) @ec2.describe_instances(instance_id: id) end
+        # Public: associate an elastic address with a VM instance
+        #
+        # address   -   the elastic IP address
+        # id        -   the VM instance id
+        #
+        # Examples
+        #
+        #   associate '10.1.1.2', 'i-deadbeef'
+        #
+        # Returns info about the association
         def associate address, id
             @ec2.associate_address public_ip: address, instance_id: id
         end
+        # Public: return a list of inforation about declared security groups
+        #
+        # Examples
+        #
+        #   sgs[0..1]
+        #       => [{"ownerId"=>"424242", "groupName"=>"sg1"},
+        #            {"ownerId"=>"424242", "groupName"=>"sg2"}]
+        #
+        # Returns an array with for each SG, the ownerID and the groupName
         def sgs
             @ec2.describe_security_groups.securityGroupInfo.item.collect do |item|
                 item.reject { |k, v| not ["groupName", "ownerId"].include? k }
@@ -50,6 +83,15 @@ module Ec2l
         def log id
             puts Base64.decode64 @ec2.get_console_output(instance_id: id)["output"]
         end
+        # Public: terminates a VM instance
+        #
+        # id  -   the VM instance id
+        #
+        # Examples
+        #
+        #   terminate "i-deadbeef"
+        #
+        # Return information about the termination status
         def terminate(id) @ec2.terminate_instances(instance_id: id) end
         def shell() binding.pry end
         def update_configuration creds = nil
