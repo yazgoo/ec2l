@@ -4,6 +4,19 @@ require 'awesome_print'
 require 'pry'
 module Ec2l
     class Client
+        # Public: return virtual machines instances
+        #
+        # keep  -   what field you want to extract.
+        #           valid fields names are documented in ec2 apis
+        #           groups is an arranged shortcut for groupSet
+        #           tagSet is also rearranged
+        #
+        # Examples
+        #
+        #   instances(["ipAddress"])[0..1]
+        #       => [{:ipAddress=>"10.1.1.2"}, {:ipAddress=>"10.1.1.2"}]
+        #
+        # Returns an array with all fields requested
         def instances keep = ["instanceId", "ipAddress", "groups",
                               "launchType", "instanceType", "tagSet"]
             @ec2.describe_instances.reservationSet.item.collect do |item|
