@@ -14,9 +14,9 @@ module Ec2l
         # Examples
         #
         #   instances(["ipAddress"])[0..1]
-        #       => [{:ipAddress=>"10.1.1.2"}, {:ipAddress=>"10.1.1.2"}]
+        #       => [{:ipAddress=>"10.1.1.2"}, {:ipAddress=>"10.1.1.1"}]
         #
-        # Returns an array with all fields requested
+        # Returns an array with all fields requested for each VM in a hash
         def instances keep = ["instanceId", "ipAddress", "groups",
                               "launchType", "instanceType", "tagSet"]
             @ec2.describe_instances.reservationSet.item.collect do |item|
@@ -36,6 +36,16 @@ module Ec2l
                 item.reject { |k, v| not ["groupName", "ownerId"].include? k }
             end
         end
+        # Public: return virtual machines instances with few details
+        #
+        # Examples
+        #
+        #   i[0]
+        #       => {:instanceId=>"i-deadbeef", :instanceState=>
+        #                       {"code"=>"16", "name"=>"running"},
+        #            :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}}
+        #
+        # Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
         def i() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
         def log id
             puts Base64.decode64 @ec2.get_console_output(instance_id: id)["output"]
