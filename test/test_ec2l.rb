@@ -11,9 +11,7 @@ class EC2lTest < Test::Unit::TestCase
     end
     def test_configuration
         client = test_initialize
-        def $stdin.gets 
-            'same_old'
-        end
+        def $stdin.gets() 'same_old' end
         client.update_configuration
         creds = client.read_credentials
         assert creds.size == 3
