@@ -1,3 +1,5 @@
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
 require 'test/unit'
 require 'tempfile'
 require 'ec2l'
