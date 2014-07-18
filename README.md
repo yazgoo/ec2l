@@ -1,6 +1,9 @@
 # Ec2l
 
 [![Build Status](https://travis-ci.org/yazgoo/ec2l.svg?branch=master)](https://travis-ci.org/yazgoo/ec2l)
+[![Code Climate](https://codeclimate.com/github/yazgoo/ec2l.png)](https://codeclimate.com/github/yazgoo/ec2l)
+
+
 
 TODO: Write a gem description
 
