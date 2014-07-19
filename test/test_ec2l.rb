@@ -2,10 +2,19 @@ require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
 require 'test/unit'
 require 'tempfile'
+require 'base64'
 require 'ec2l'
+class MockEc2
+    def method_missing method, *args, &block
+        nil
+    end
+    def get_console_output stuff
+        {"output" => Base64.encode64("hello")}
+    end
+end
 class Ec2l::Client
     def build_underlying_client credentials
-        nil
+        MockEc2.new
     end
 end
 class EC2lTest < Test::Unit::TestCase
@@ -35,5 +44,12 @@ class EC2lTest < Test::Unit::TestCase
         client = test_initialize
         result = client.send :to_hash, [{"key" => "hello", "value" => "world"}]
         assert result == {hello: "world"}
+    end
+    def test_basic_underlying_calls
+        client = test_initialize
+        assert client.associate(nil, nil).nil?
+        assert client.instance(nil).nil?
+        assert client.log(nil) == ["hello"]
+        assert client.terminate(nil).nil?
     end
 end
