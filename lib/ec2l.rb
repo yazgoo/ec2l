@@ -2,7 +2,22 @@ require "ec2l/version"
 require 'base64'
 require 'awesome_print'
 require 'pry'
+# Public: Utilities to facilitate amazon EC2 administration
+#
+# Examples
+#
+#   Ec2l::Client.new.i
+#       => {:instanceId=>"i-deadbeef", :instanceState=>
+#                       {"code"=>"16", "name"=>"running"},
+#            :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}
+#           ...
 module Ec2l
+    # Public: Client to use amazon EC2 apis
+    #
+    # Examples
+    #
+    #   Client.new.instances(["ipAddress"])[0..1]
+    #       => [{:ipAddress=>"10.1.1.2"}, {:ipAddress=>"10.1.1.1"}]
     class Client
         # Public: return virtual machines instances
         #
