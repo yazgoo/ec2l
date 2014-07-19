@@ -19,4 +19,13 @@ class EC2lTest < Test::Unit::TestCase
         assert creds.size == 3
         creds.each { |cred| assert cred == 'same_old' }
     end
+    def test_method_missing
+        assert test_initialize.h.nil?
+        assert test_initialize.send(:method_missing_ec2, :h).nil?
+    end
+    def test_utilities
+        client = test_initialize
+        result = client.send :to_hash, [{"key" => "hello", "value" => "world"}]
+        assert result == {hello: "world"}
+    end
 end
