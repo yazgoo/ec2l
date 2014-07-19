@@ -30,6 +30,7 @@ though a better way is to use the shell, which relies on pry:
 
     $ ec2l shell
 
+
     ```ruby
     ...
     [2] pry(#<Ec2l::Client>)> h # print help
