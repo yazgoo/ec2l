@@ -31,29 +31,29 @@ though a better way is to use the shell, which relies on pry:
     $ ec2l shell
 
 
-    ```ruby
-    ...
-    [2] pry(#<Ec2l::Client>)> h # print help
-    Usage: action parameters...
-    available actions:
-    [
-        [0]            associate(address, id) Ec2l::Client
-        [1]                  ins()            Ec2l::Client
-    ...
-    [2] pry(#<Ec2l::Client>)> show-doc ins
-    ...
-    Public: return virtual machines instances with few details
+```ruby
+...
+[2] pry(#<Ec2l::Client>)> h # print help
+Usage: action parameters...
+available actions:
+[
+    [0]            associate(address, id) Ec2l::Client
+    [1]                  ins()            Ec2l::Client
+...
+[2] pry(#<Ec2l::Client>)> show-doc ins
+...
+Public: return virtual machines instances with few details
 
-    Examples
+Examples
 
-      ins[0]
-          => {:instanceId=>"i-deadbeef", :instanceState=>
-                          {"code"=>"16", "name"=>"running"},
-               :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}}
+  ins[0]
+      => {:instanceId=>"i-deadbeef", :instanceState=>
+                      {"code"=>"16", "name"=>"running"},
+           :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}}
 
-    Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
-    [7] pry(#<Ec2l::Client>)> ins
-    ```
+Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
+[7] pry(#<Ec2l::Client>)> ins
+```
 
 ## Contributing
 
