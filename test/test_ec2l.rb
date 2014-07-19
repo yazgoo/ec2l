@@ -17,39 +17,51 @@ class Ec2l::Client
         MockEc2.new
     end
 end
+class Hash
+    def method_missing method, *args, &block
+        method = method.to_s
+        if method.end_with? "="
+            self[method.to_s[0..-2]] = args[0]
+        else
+            self[method]
+        end
+    end
+end
 class EC2lTest < Test::Unit::TestCase
-    def test_initialize
+    def setup
         if @conf.nil?
             @conf = Tempfile.new "a"
             @conf.write "a\nb\n"
             @conf.close
         end
         ENV['awssecret'] = @conf.path
-        client = Ec2l::Client.new
-        client
+        @cli = Ec2l::Client.new
     end
     def test_configuration
-        client = test_initialize
         def $stdin.gets() 'same_old' end
-        client.update_configuration
-        creds = client.read_credentials
+        @cli.update_configuration
+        creds = @cli.read_credentials
         assert creds.size == 3, creds.to_s
         creds.each { |cred| assert cred == 'same_old' }
     end
     def test_method_missing
-        assert test_initialize.h.nil?
-        assert test_initialize.send(:method_missing_ec2, :h).nil?
+        assert @cli.h.nil?
+        assert @cli.send(:method_missing_ec2, :h).nil?
     end
     def test_utilities
-        client = test_initialize
-        result = client.send :to_hash, [{"key" => "hello", "value" => "world"}]
+        result = @cli.send :to_hash, [{"key" => "hello", "value" => "world"}]
         assert result == {hello: "world"}
     end
     def test_basic_underlying_calls
-        client = test_initialize
-        assert client.associate(nil, nil).nil?
-        assert client.instance(nil).nil?
-        assert client.log(nil) == ["hello"]
-        assert client.terminate(nil).nil?
+        assert @cli.associate(nil, nil).nil?
+        assert @cli.instance(nil).nil?
+        assert @cli.log(nil) == ["hello"]
+        assert @cli.terminate(nil).nil?
+    end
+    def test_rearrange_fields
+        item = {}
+        item.instancesSet = {}
+        item.instancesSet.item = ["blah"]
+        @cli.rearrange_fields nil, nil
     end
 end

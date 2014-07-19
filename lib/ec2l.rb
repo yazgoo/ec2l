@@ -35,10 +35,8 @@ module Ec2l
         def instances keep = ["instanceId", "ipAddress", "groups",
                               "launchType", "instanceType", "tagSet"]
             @ec2.describe_instances.reservationSet.item.collect do |item|
-                group = item.groupSet if keep.include? "groups"
+                rearrange_fields item, keep
                 item = item.instancesSet.item[0].reject{|k, v| not keep.include? k}
-                item["groups"] = group.item.map{|x| x.groupId } if not group.nil?
-                item["tagSet"] = to_hash(item["tagSet"].item) if item["tagSet"]
                 Hash[item.map { |k, v| [k.to_sym, v] }]
             end
         end
@@ -224,6 +222,15 @@ private
             puts "Usage: action parameters...", "available actions:"
             awesome_print (public_methods - "".public_methods)
             nil
+        end
+        def rearrange_fields item, keep
+            it = item.instancesSet.item[0]
+            if keep.include? "groups" and item.groupSet
+                it["groups"] = item.groupSet.item.map{|x| x.groupId }
+            end
+            if keep.include? "tagSet" and it.tagSet
+                it["tagSet"] = to_hash(it.tagSet.item)
+            end
         end
     end
 end
