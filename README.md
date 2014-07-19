@@ -40,7 +40,7 @@ available actions:
     [0]            associate(address, id) Ec2l::Client
     [1]                  ins()            Ec2l::Client
 ...
-[2] pry(#<Ec2l::Client>)> show-doc ins
+[2] pry(#<Ec2l::Client>)> show-doc ins # print documentation on ins method
 ...
 Public: return virtual machines instances with few details
 
@@ -52,7 +52,7 @@ Examples
            :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}}
 
 Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
-[7] pry(#<Ec2l::Client>)> ins
+[7] pry(#<Ec2l::Client>)> ins # launch ins method
 ```
 
 ## Contributing
