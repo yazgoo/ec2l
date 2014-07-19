@@ -88,13 +88,13 @@ module Ec2l
         #
         # Examples
         #
-        #   i[0]
+        #   ins[0]
         #       => {:instanceId=>"i-deadbeef", :instanceState=>
         #                       {"code"=>"16", "name"=>"running"},
         #            :ipAddress=>"10.1.1.2", :tagSet=>{:k=>"v"}}
         #
         # Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
-        def i() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
+        def ins() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
         # Public: get system log
         #
         # id - VM instance id
@@ -142,9 +142,7 @@ module Ec2l
                 ["access key", "secret access key",
                  "entry point (default being https://aws.amazon.com if blank)"
                 ].each_with_index do |prompt, i|
-                    printf "#{prompt} (#{creds.size > i ? creds[i]:""}): "
-                    line = $stdin.gets.chomp
-                    line = creds[i] if line.empty? and creds.size > i
+                    line = prompt_line prompt, creds[i]
                     f.puts line if not line.empty?
                 end
             end
@@ -163,6 +161,11 @@ module Ec2l
             creds
         end
 private
+        def prompt_line prompt, cred
+            printf "#{prompt} (#{creds? creds:""}): "
+            line = $stdin.gets.chomp
+            if line.empty? and creds.size > i then creds else line end
+        end
         def to_hash array
             Hash[array.collect { |i| [i["key"].to_sym, i["value"]] }]
         end
@@ -172,13 +175,15 @@ private
             update_configuration credentials
             read_credentials
         end
-        def initialize
-            @conf = ENV['awssecret'] || "#{ENV['HOME']}/.awssecret"
-            credentials = load_credentials
+        def build_underlying_client credentials
             ENV['EC2_URL'] = credentials[2] if credentials.size >= 3
             require 'AWS' # *must* load AWS after setting EC2_URL
-            @ec2 = AWS::EC2::Base.new access_key_id: credentials[0],
+            AWS::EC2::Base.new access_key_id: credentials[0],
                 secret_access_key: credentials[1]
+        end
+        def initialize
+            @conf = ENV['awssecret'] || "#{ENV['HOME']}/.awssecret"
+            @ec2 = build_underlying_client load_credentials
         end
         # Internal: try and find/launch the method on the 
         #   underlying client called by the method name
