@@ -25,10 +25,12 @@ Or install it yourself as:
 
 ## Usage
 
-    You can call public client methods directly from the ec2l command line,
-    though a better way is to use the shell, which relies on pry:
+You can call public client methods directly from the ec2l command line,
+though a better way is to use the shell, which relies on pry:
 
     $ ec2l shell
+
+    ```ruby
     ...
     [2] pry(#<Ec2l::Client>)> h # print help
     Usage: action parameters...
@@ -50,6 +52,7 @@ Or install it yourself as:
 
     Returns an array with instanceId, ipAddress, tagSet, instanceState in a hash
     [7] pry(#<Ec2l::Client>)> ins
+    ```
 
 ## Contributing
 
