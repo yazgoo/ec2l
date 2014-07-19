@@ -33,7 +33,7 @@ class MockEc2
         $instance_set
     end
     def describe_security_groups
-        {"securityGroupInfo" => {"item" => [] }}
+        {"securityGroupInfo" => {"item" => [{'groupName' => 'test'}] }}
     end
     def get_console_output stuff
         {"output" => Base64.encode64("hello")}
@@ -80,7 +80,10 @@ class EC2lTest < Test::Unit::TestCase
     end
     def test_complex_calls
         assert @cli.describe_instances == $instance_set
-        assert @cli.sgs == []
+        instances = [{:instanceId=>"lol"}]
+        assert @cli.instances == instances
+        assert @cli.ins == instances
+        assert @cli.sgs == [{"groupName"=>"test"}]
     end
     def test_underlying_client_initialization
         x = nil
