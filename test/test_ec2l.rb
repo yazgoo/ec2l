@@ -4,6 +4,16 @@ require 'test/unit'
 require 'tempfile'
 require 'base64'
 require 'ec2l'
+class Hash
+    def method_missing method, *args, &block
+        method = method.to_s
+        if method.end_with? "="
+            self[method.to_s[0..-2]] = args[0]
+        else
+            self[method]
+        end
+    end
+end
 class Client < Ec2l::Client
     def build_underlying_client credentials
         if credentials.size == 3 and credentials[2] == 'through'
@@ -27,16 +37,6 @@ class MockEc2
     end
     def get_console_output stuff
         {"output" => Base64.encode64("hello")}
-    end
-end
-class Hash
-    def method_missing method, *args, &block
-        method = method.to_s
-        if method.end_with? "="
-            self[method.to_s[0..-2]] = args[0]
-        else
-            self[method]
-        end
     end
 end
 class EC2lTest < Test::Unit::TestCase
