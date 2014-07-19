@@ -56,7 +56,7 @@ class EC2lTest < Test::Unit::TestCase
         creds = @cli.read_credentials
         assert creds.size == 3, creds.to_s
         creds.each { |cred| assert cred == 'same_old' }
-        ENV['awssecret'] = create_conf(['a', 'b', 'c'])
+        ENV['awssecret'] = create_conf([])
         Client.new.send :load_credentials
     end
     def test_method_missing
