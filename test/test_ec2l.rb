@@ -59,9 +59,8 @@ class EC2lTest < Test::Unit::TestCase
         assert @cli.terminate(nil).nil?
     end
     def test_rearrange_fields
-        item = {}
-        item.instancesSet = {}
-        item.instancesSet.item = ["blah"]
-        @cli.rearrange_fields nil, nil
+        item = {"instancesSet" => {"item" => [{"tagSet" => {"item" => []}}]},
+                "groupSet" => {"item" => [{}] } }
+        @cli.send :rearrange_fields, item, ["groups", "tagSet"]
     end
 end
