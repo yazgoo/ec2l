@@ -7,7 +7,7 @@
 [![Gem Version](https://badge.fury.io/rb/ec2l.svg)](http://badge.fury.io/rb/ec2l)
 
 
-Ec2l aims to provide an efficient low level UI to EC2.
+Ec2l aims to provide an efficient ruby developer oriented UI to EC2.
 
 ## Installation
 
