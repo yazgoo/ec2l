@@ -97,32 +97,44 @@ module Ec2l
         def i() instances ["instanceId", "ipAddress", "tagSet", "instanceState"] end
         # Public: get system log
         #
-        # id  -   the VM instance id
+        # id - VM instance id
         #
         # Examples
         #
         #   log("i-deadbeef")[0..1]
         #       => ["Initializing cgroup subsys cpuset", "Initializing cgroup subsys cpu"]
         #
-        # Return an array containing the lines of the system log
+        # Returns an array containing the lines of the system log
         def log id
             Base64.decode64(@ec2.get_console_output(instance_id: id)["output"]).split("\r\n")
         end
         # Public: terminates a VM instance
         #
-        # id  -   the VM instance id
+        # id - the VM instance id
         #
         # Examples
         #
         #   terminate "i-deadbeef"
         #
-        # Return information about the termination status
+        # Returns information about the termination status
         def terminate(id) @ec2.terminate_instances(instance_id: id) end
         # Public: opens up a pry shell
         def shell() binding.pry end
         # Public: update the credentials configuration
         #
-        # creds  -   current credentials
+        # creds - current credentials
+        #
+        # Examples
+        #   update_configuration
+        #   Will try and update configuration in /home/yazgoo/.awssecret
+        #   access key (foo): 
+        #   secret access key (bar): 
+        #   entry point (default being https://aws.amazon.com if blank)
+        #        (http://ec2.aws.com): 
+        #       => ["access key", "secret access key", 
+        #           "entry point ..."]
+        #
+        # Returns the description of the updated fields
         def update_configuration creds = nil
             puts "Will try and update configuration in #{@conf}"
             creds = read_credentials if creds.nil?
