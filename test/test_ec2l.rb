@@ -40,13 +40,14 @@ class Hash
     end
 end
 class EC2lTest < Test::Unit::TestCase
+    def create_conf creds
+        conf = Tempfile.new "a"
+        conf.write creds.join "\n"
+        conf.close
+        conf.path
+    end
     def setup
-        if @conf.nil?
-            @conf = Tempfile.new "a"
-            @conf.write "a\nb\n"
-            @conf.close
-        end
-        ENV['awssecret'] = @conf.path
+        ENV['awssecret'] = create_conf ['a', 'b']
         @cli = Client.new
     end
     def test_configuration
@@ -55,6 +56,8 @@ class EC2lTest < Test::Unit::TestCase
         creds = @cli.read_credentials
         assert creds.size == 3, creds.to_s
         creds.each { |cred| assert cred == 'same_old' }
+        ENV['awssecret'] = create_conf(['a', 'b', 'c'])
+        Client.new.send :load_credentials
     end
     def test_method_missing
         assert @cli.h.nil?
