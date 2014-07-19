@@ -3,7 +3,6 @@ CodeClimate::TestReporter.start
 require 'test/unit'
 require 'tempfile'
 require 'ec2l'
-require 'rspec'
 class Ec2l::Client
     def build_underlying_client credentials
         nil
