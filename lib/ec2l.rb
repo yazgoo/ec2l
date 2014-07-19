@@ -159,14 +159,14 @@ private
                     return @ec2.send meth, *args, &block
                 end
             end
-            yield
+            nil
         end
         def method_missing method, *args, &block
-            method_missing_ec2 method, *args, &block do
-                puts "Usage: action parameters...", "available actions:"
-                awesome_print (public_methods - "".public_methods)
-                nil
-            end
+            result = method_missing_ec2(method, *args, &block)
+            return result if not result.nil?
+            puts "Usage: action parameters...", "available actions:"
+            awesome_print (public_methods - "".public_methods)
+            nil
         end
     end
 end
