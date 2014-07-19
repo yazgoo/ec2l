@@ -180,6 +180,17 @@ private
             @ec2 = AWS::EC2::Base.new access_key_id: credentials[0],
                 secret_access_key: credentials[1]
         end
+        # Internal: try and find/launch the method on the 
+        #   underlying client called by the method name
+        #   or by describe_#{name}
+        #
+        # Examples
+        #
+        #  method_missing_ec2 :addresses
+        #    => {"xmlns"=>"http://ec2.amazonaws.com/doc/2010-08-31/",
+        #           ...
+        #
+        # Return the result of the underlying method call
         def method_missing_ec2 method, *args, &block
             [method, "describe_#{method.to_s}".to_sym].each do |meth|
                 if @ec2.public_methods.include? meth
@@ -188,6 +199,20 @@ private
             end
             nil
         end
+        # Internal: try and call method_missing_ec2
+        #   if its result is nil, display a list of the class
+        #   public methods
+        #
+        # Examples
+        #
+        #  h
+        #  =>Usage: action parameters...
+        #    available actions:
+        #    [
+        #        [0]            associate(address, id) Ec2l::Client
+        #        [1]                    i()            Ec2l::Client
+        #    
+        # Return the result of method_missing_ec2 or nil
         def method_missing method, *args, &block
             result = method_missing_ec2(method, *args, &block)
             return result if not result.nil?
