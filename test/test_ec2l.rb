@@ -4,9 +4,13 @@ require 'test/unit'
 require 'tempfile'
 require 'base64'
 require 'ec2l'
-class Ec2l::Client
+class Client < Ec2l::Client
     def build_underlying_client credentials
-        MockEc2.new
+        if credentials.size == 3 and credentials[2] == 'through'
+            super credentials
+        else
+            MockEc2.new
+        end
     end
 end
 $instance_set = {"reservationSet" => {"item" => [{"instancesSet" => {
@@ -43,7 +47,7 @@ class EC2lTest < Test::Unit::TestCase
             @conf.close
         end
         ENV['awssecret'] = @conf.path
-        @cli = Ec2l::Client.new
+        @cli = Client.new
     end
     def test_configuration
         def $stdin.gets() 'same_old' end
@@ -74,5 +78,14 @@ class EC2lTest < Test::Unit::TestCase
     def test_complex_calls
         assert @cli.describe_instances == $instance_set
         assert @cli.sgs == []
+    end
+    def test_underlying_client_initialization
+        x = nil
+        begin
+            @cli.build_underlying_client ['a', 'b', 'through']
+        rescue Exception => e
+            x = e
+        end
+        assert not(x.nil?)
     end
 end
