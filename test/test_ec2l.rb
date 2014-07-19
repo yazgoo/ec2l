@@ -4,17 +4,25 @@ require 'test/unit'
 require 'tempfile'
 require 'base64'
 require 'ec2l'
+class Ec2l::Client
+    def build_underlying_client credentials
+        MockEc2.new
+    end
+end
+$instance_set = {"reservationSet" => {"item" => [{"instancesSet" => {
+            "item" => [{"instanceId" => "lol"}]}}]}}
 class MockEc2
     def method_missing method, *args, &block
         nil
     end
+    def describe_instances stuff = nil
+        $instance_set
+    end
+    def describe_security_groups
+        {"securityGroupInfo" => {"item" => [] }}
+    end
     def get_console_output stuff
         {"output" => Base64.encode64("hello")}
-    end
-end
-class Ec2l::Client
-    def build_underlying_client credentials
-        MockEc2.new
     end
 end
 class Hash
@@ -54,7 +62,7 @@ class EC2lTest < Test::Unit::TestCase
     end
     def test_basic_underlying_calls
         assert @cli.associate(nil, nil).nil?
-        assert @cli.instance(nil).nil?
+        assert @cli.instance(nil) == $instance_set
         assert @cli.log(nil) == ["hello"]
         assert @cli.terminate(nil).nil?
     end
@@ -62,5 +70,9 @@ class EC2lTest < Test::Unit::TestCase
         item = {"instancesSet" => {"item" => [{"tagSet" => {"item" => []}}]},
                 "groupSet" => {"item" => [{}] } }
         @cli.send :rearrange_fields, item, ["groups", "tagSet"]
+    end
+    def test_complex_calls
+        assert @cli.describe_instances == $instance_set
+        assert @cli.sgs == []
     end
 end
