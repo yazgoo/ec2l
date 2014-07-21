@@ -179,9 +179,22 @@ private
             AWS::EC2::Base.new access_key_id: credentials[0],
                 secret_access_key: credentials[1]
         end
+        # Internal: load underlying client based on configuration into @ec2,
+        #   which is usefull if you've updated credentials
+        #   note that EC2_URL won't be updated this way
+        #
+        # Examples
+        #
+        #  load
+        #       =>#<AWS::EC2::Base:0x00000002eca868    
+        #
+        # Return the underlying client loaded
+        def load
+            @ec2 = build_underlying_client load_credentials
+        end
         def initialize
             @conf = ENV['awssecret'] || "#{ENV['HOME']}/.awssecret"
-            @ec2 = build_underlying_client load_credentials
+            load
         end
         # Internal: try and find/launch the method on the 
         #   underlying client called by the method name
